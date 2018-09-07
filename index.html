@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+    <script>window.$ = window.jQuery = require('jquery');</script>
+
+  </head>
+  <body>
+    <h1>mp github</h1>
+    <form>
+      <div >
+          <label> Enter username github</label>
+          <input type="text" id="username" name="username" >
+      </div>
+      <button type="submit" name="button" id="send"> Send</button>
+    </form>
+
+
+        <table id="table-repo"style="width:100%">
+          <thead>
+            <tr>
+              <th>Owner</th>
+              <th>Avatar</th>
+              <th>Name project</th>
+              <th> Repository </th>
+            </tr>
+          </thead>
+
+          <div class="container-repo">
+
+          </div>
+
+        </table>
+    <script>
+
+      // You can also require other files to run in this process
+      // require('./renderer.js')
+      const electron = require('electron')
+      const { ipcRenderer } = electron
+
+      const form = document.querySelector('form');
+
+      form.addEventListener('submit', submitForm);
+
+      function submitForm(e){
+        e.preventDefault();
+        const username = document.querySelector('#username').value;
+        ipcRenderer.send('username:search', username)
+
+      }
+      ipcRenderer.on('username:search', function(e,repositoryList){
+        console.log(repositoryList)
+        document.getElementById("table-repo").innerHTML = " "
+
+        let bodyTable = " ";
+                bodyTable    += "<tr> <td>__OWNER__</td>";
+                  bodyTable  +="<td><img src=\"__gravatar__\" alt='' style=\"width:50px\"></td>";
+                  bodyTable  +="<td>__NAME__REPOS__</td>";
+                  bodyTable  +="<td>__REPOS__</td> </tr>";
+
+        let rowTable = "<tbody>"
+        for (let item of repositoryList) {
+           rowTable += bodyTable
+           .replace("__OWNER__",item.owner.login)
+           .replace("__NAME__REPOS__",item.name)
+           .replace("__gravatar__",item.owner.avatar_url)
+           .replace("__REPOS__",item.git_url)
+
+        }
+        rowTable += "</tbody> ";
+        console.log(rowTable);
+        document.getElementById("table-repo").innerHTML += rowTable
+      })
+
+
+    </script>
+
+  </body>
+</html>
